@@ -1,0 +1,40 @@
+table {
+    border-collapse: collapse;
+    height: 100px;
+    overflow-y: scroll;
+}
+
+table tr, table td {
+    border: 1px solid #ddd;
+}
+
+p.__:before {
+    content: '';
+    display: table;
+}
+#main{
+    margin-left:20%;
+}
+#main > div {
+    display: none;
+}
+
+#main > div.table-show {
+    display: block;
+}
+
+div.w3-modal.modal-show {
+    display: block;
+}
+
+@media print{
+    #nav{
+        display: none;
+    }
+    #main{
+        margin-left: 0;
+    }
+    .noExl{
+        display: none;
+    }
+}
