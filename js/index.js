@@ -45,7 +45,7 @@ $(function () {
     //出库表编码输入获取信息行为绑定
     $('#out-pid').on('blur', function () {
         var pid = $(this).val();
-        getTotalByPid(pid);
+        //getTotalByPid(pid);
         getOutList(pid);
     });
     $('#outList').on('click', 'td>a', function () {
@@ -54,17 +54,16 @@ $(function () {
         var count = $(this).parent().prev().children('input').val();
         var max = $(this).parent().prev().children('input').attr('max');
         var $info = $('p.out-info');
-        if(!orderId){
-            $info.html('请输入订单编号');
+        if (!orderId) {
+            $info.html('* 请输入订单编号 *');
             return;
-        }else if(parseInt(count)>max){
+        } else if (parseInt(count) > max) {
             $info.html('发货数量有误或超出范围');
             return;
-        }else if(orderId&&cid&&count){
+        } else if (orderId && cid && count) {
             $info.html('');
-            updateOut(orderId,cid,count);
+            updateOut(orderId, cid, count);
         }
-
     });
     $('#btn-out').click(function () {
         modalHide();
@@ -99,7 +98,7 @@ $(function () {
     });
     //  日志查询初始化
     $('#accYear').val(new Date().getFullYear()).change(accountSelectByDate);
-    $('#accMouth').val(new Date().getMonth()+1).change(accountSelectByDate);
+    $('#accMouth').val(new Date().getMonth() + 1).change(accountSelectByDate);
     //删除功能
     $('#delete-pid').on('blur', function () {
         var pid = $(this).val();
@@ -115,13 +114,13 @@ $(function () {
     //修改功能
     $('#revise-pid').on('blur', function () {
         var pid = $(this).val();
-        if(pid){
+        if (pid) {
             getReviseData(pid);
         }
     });
     $('#btn-revise').click(function () {
-        if(checkFormRevise()){
-            if($('#revise-pid').val()){
+        if (checkFormRevise()) {
+            if ($('#revise-pid').val()) {
                 var data = 'pid=' + $('#revise-pid').val() + '&' + $('#form-revise').serialize();
                 updateRevise(data);
             }
@@ -181,9 +180,6 @@ function showTable(tid) {
 function showModal(mid) {
     $('div.modal-show').removeClass('modal-show');
     $(mid).addClass('modal-show');
-    if(mid=='#hxt-out'){
-        getOutList($('#out-pid').val());
-    }
 }
 //modal 隐藏
 function modalHide() {
@@ -241,15 +237,19 @@ function updateTotal() {
     });
 }
 //table-account 视图更新
-function updateAccount(year,month,limit) {
-    if(!year){year=new Date().getFullYear()}
-    if(!month){month=new Date().getMonth()+1}
+function updateAccount(year, month, limit) {
+    if (!year) {
+        year = new Date().getFullYear();
+    }
+    if (!month) {
+        month = new Date().getMonth() + 1;
+    }
     $.ajax({
         type: 'GET',
         url: 'data/getAccount.php',
-        data:{accYear:year,accMonth:month,accLimit:limit},
+        data: { accYear: year, accMonth: month, accLimit: limit },
         success: function success(data) {
-            if(data.length){
+            if (data.length) {
                 var html;
                 for (var i = 0; i < data.length; i++) {
                     var p = data[i];
@@ -262,88 +262,94 @@ function updateAccount(year,month,limit) {
                     html += '<td><b>' + time + '</b></td><td>' + p.pid + '</td>\n                        <td>' + p.name + '</td>\n                        <td>' + p.spec + '</td>\n                        <td>' + p.unit + '</td>\n     <td>' + p.depot + '</td>\n                   <td><b>' + parseFloat(p.aCount) + '</b></td>\n                    </tr>';
                 }
                 $('#tb-account').html(html);
-            }else{
-                alert('无相关数据')
+            } else {
+                alert('无相关数据');
             }
-
         }
     });
 }
-function getAccountInit(year,month){
+function getAccountInit(year, month) {
     //account表头日期初始化    查询功能
-    if(!year){year=$('#accYear').val()}
-    if(!month){year=$('#accMonth').val()}
+    if (!year) {
+        year = $('#accYear').val();
+    }
+    if (!month) {
+        year = $('#accMonth').val();
+    }
     //分页初始化
     $.ajax({
-        type:'GET',
-        url:'data/getAccountInit.php',
-        data:{accYear:year,accMonth:month},
-        success: function (data) {
-            if(data){
-                var i = Math.ceil(data[0]/200),html;
+        type: 'GET',
+        url: 'data/getAccountInit.php',
+        data: { accYear: year, accMonth: month },
+        success: function success(data) {
+            if (data) {
+                var i = Math.ceil(data[0] / 200),
+                    html;
                 $('.accTotal').html(i);
-                for(let n =1,m=0;n<=i;n++,m++){
-                    html+= '<option value="'+m+'">第 '+n+' 页</option>'
+                for (var n = 1, m = 0; n <= i; n++, m++) {
+                    html += '<option value="' + m + '">第 ' + n + ' 页</option>';
                 }
-                $('#accLimit').html(html).append($('<option value="all">显示全部（按月份导出为EXL）</option>')).change(getAccountByPager)
-
+                $('#accLimit').html(html).append($('<option value="all">显示全部（按月份导出为EXL）</option>')).change(getAccountByPager);
             }
         }
-    })
+    });
 }
 //table-account 按日期查询功能
-function accountSelectByDate(){
+function accountSelectByDate() {
     var year = $('#accYear').val();
     var month = $('#accMouth').val();
-    getAccountInit(year,month);
-    updateAccount(year,month);
-
+    getAccountInit(year, month);
+    updateAccount(year, month);
 }
-function getAccountByPager(){
+function getAccountByPager() {
     var year = $('#accYear').val();
     var month = $('#accMouth').val();
     var limit = $('#accLimit').val();
-    updateAccount(year,month,limit);
+    updateAccount(year, month, limit);
 }
-//ajax 出库表获取单个商品总库存
-function getTotalByPid(pid) {
-    $.ajax({
-        type: 'GET',
-        url: 'data/getTotal.php',
-        data: { pid: pid },
-        success: function success(data) {
-            $('.getCount').html(data[0]);
-        }
-    });
-}
-//ajax 出库表获取出库信息
 function getOutList(pid) {
     $.ajax({
         type: 'GET',
         url: 'data/getByPid.php',
         data: { pid: pid },
         success: function success(data) {
-            var html;
-            for (var i = 0; i < data.length; i++) {
-                var p = data[i];
-                if (p.pid === pid) {
-                    var inTime = new Date(p.inTime / 1).format('yyyy-MM-dd');
-                    html += '<tr>\n                                                             <td>' + p.name + '</td>\n                                <td class="td-count">' + parseFloat(p.count) + '</td>\n                                <td>' + p.unit + '</td>\n                                <td>' + inTime + '</td>\n                   <td>' + p.depot + '</td>\n              <td>\n                                    <input class="w3-input" type="number" min="0" max=' + p.count + ' name="count">\n                                </td>\n                                <td><a href="#" data-cid="' + p.cid + "\" class=\"w3-btn-block w3-green\">\u786E\u8BA4\u53D1\u8D27</a></td>\n                            </tr>";
+            var html,
+                total = 0;
+            if (data.length) {
+                for (var i = 0; i < data.length; i++) {
+                    var p = data[i];
+                    total += parseFloat(p.count);
+                    if (p.pid === pid) {
+                        var inTime = new Date(p.inTime / 1).format('yyyy-MM-dd');
+                        html += '<tr>\n                                                             <td>' + p.name + '</td>\n                                <td class="td-count">' + parseFloat(p.count) + '</td>\n                                <td>' + p.unit + '</td>\n                                <td>' + inTime + '</td>\n                   <td>' + p.depot + '</td>\n              <td>\n                                    <input class="w3-input" type="number" min="0" max=' + p.count + ' name="count">\n                                </td>\n                                <td><a href="#" data-cid="' + p.cid + "\" class=\"w3-btn-block w3-green\">\u786E\u8BA4\u53D1\u8D27</a></td>\n                            </tr>";
+                    }
                 }
+            } else {
+                html += "<tr><td colspan=\"7\"><div class=\"w3-container w3-green\">\n            <h4>\u8BF7\u8F93\u5165\u6B63\u786E\u7684\u5546\u54C1\u7F16\u7801 </h4>\n            <span onclick=\"this.parentElement.style.display='none'\" class=\"w3-closebtn\">x</span>\n        </div></td></tr>   ";
             }
             $('#outList').html(html);
+            $('.getCount').html(total);
         }
     });
 }
 //ajax 出库功能、同时更新出库表
-function updateOut(orderId,cid, count) {
+function updateOut(orderId, cid, count) {
     $.ajax({
         type: 'GET',
         url: 'data/update.php',
-        data: {orderId:orderId, cid: cid, count: count },
+        data: { orderId: orderId, cid: cid, count: count },
         success: function success(data) {
             if (data.msg === 'succ') {
+                $('.out-succ-alert').attr('style', 'display:block');
                 getOutList($('#out-pid')[0].value);
+                setTimeout(function () {
+                    $('.out-succ-alert').attr('style', 'display:none');
+                }, 3500);
+            } else {
+                $('.out-err-alert').attr('style', 'display:block');
+                setTimeout(function () {
+                    $('.out-err-alert').attr('style', 'display:none');
+                }, 3500);
             }
         }
     });
@@ -354,7 +360,7 @@ function checkFormIn() {
         if ($(this).val() === '') {
             $('p.in-info').html('请保证数据完整性');
             return false;
-        }else{
+        } else {
             $('p.in-info').html('');
         }
     });
@@ -385,6 +391,10 @@ function updateIn(data) {
         success: function success(data) {
             if (data.msg = 'succ') {
                 $('#form-in')[0].reset();
+                $('.in-succ-alert').attr('style', 'display:block');
+                setTimeout(function () {
+                    $('.in-succ-alert').attr('style', 'display:none');
+                }, 3500);
                 return true;
             } else {
                 alert(data.msg);
@@ -399,8 +409,8 @@ function showDeleteList(pid) {
         url: 'data/getByPid.php',
         data: { pid: pid },
         success: function success(data) {
-            var html='';
-            if(data){
+            var html = '';
+            if (data) {
                 for (var i = 0; i < data.length; i++) {
                     var p = data[i];
                     if (p.pid === pid) {
@@ -433,7 +443,7 @@ function getReviseData(pid) {
         url: 'data/revise.php',
         data: { pid: pid },
         success: function success(data) {
-            if(data){
+            if (data) {
                 var html;
                 html += "<td>" + data.name + "</td> <td>" + data.spec + "</td><td>" + data.unit + "</td><td>" + data.breed + "</td> ";
                 $('#reviseTr').html(html);

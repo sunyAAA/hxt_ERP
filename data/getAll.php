@@ -8,7 +8,7 @@ if($pid){
     $list = mysqli_fetch_assoc($result);
     echo json_encode($list);
 }else if(is_null($pid)){
-    $sql = "SELECT pid,name,spec,unit,inTime,mdate,breed,depot,count,cid FROM zh_product,p_count WHERE pid=productId ORDER BY pid,inTime ASC";
+    $sql = "SELECT pid,name,spec,unit,inTime,mdate,breed,depot,count,cid FROM zh_product,p_count WHERE count<>0 and pid=productId ORDER BY pid,inTime ASC";
     $result = mysqli_query($conn,$sql);
     //    var_dump($result);
     $list = mysqli_fetch_all($result,1);
